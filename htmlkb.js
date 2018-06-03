@@ -59,7 +59,7 @@ function extractPaths({fromFile, extensions}) {
     paths.push(
       fromFile.match(
         new RegExp(`(?<=<!-- )[\\w\\/]*.${extension}(?= -->)`, 'gm'),
-      ),
+      ) || [],
     );
   }
   return paths;

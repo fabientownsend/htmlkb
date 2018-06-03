@@ -38,5 +38,3 @@ Which result to have:
 ``` html
 <!doctype html><html lang="en"><head><style>body{background:#000}</style></head><body></body></html>
 ```
-
-_Note: this current version expect to contain svg, css and js in order to work_
