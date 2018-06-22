@@ -37,7 +37,8 @@ async function main(source) {
     svgPaths,
   );
 
-  const dest = source.split('/')[1];
+  const splittedPath = source.split('/')
+  const dest = splittedPath[splittedPath.length - 1];
   fs.writeFile(`dist/${dest}`, compressedHtml, () => {
     const f = fs.statSync(`dist/${dest}`);
     console.log('SIZE: ', (f['size'] / 1000).toFixed(2), 'K');
