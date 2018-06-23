@@ -6,11 +6,13 @@ const readFileAsync = promisify(fs.readFile);
 const {minify} = require('html-minifier');
 const cssnano = require('cssnano');
 const Svgo = require('svgo');
-const uglifyJs = require('uglify-es');
+const uglifyJs = require("uglify-js");
 
 const constant = {
   encoding: 'utf-8',
 };
+
+let initialSize = 0
 
 async function main(source) {
   const html = await readFileAsync(source, constant.encoding);
@@ -18,6 +20,7 @@ async function main(source) {
     fromFile: html,
     extensions: ['svg', 'css', 'js'],
   });
+
   let [
     compressedHtml,
     compressedCss,
@@ -37,11 +40,10 @@ async function main(source) {
     svgPaths,
   );
 
-  const splittedPath = source.split('/')
+  const splittedPath = source.split('/');
   const dest = splittedPath[splittedPath.length - 1];
   fs.writeFile(`dist/${dest}`, compressedHtml, () => {
-    const f = fs.statSync(`dist/${dest}`);
-    console.log('SIZE: ', (f['size'] / 1000).toFixed(2), 'K');
+    console.log(`Compressed form ${initialSize}KB to ${fileSize(compressedHtml)}KB `)
   });
 }
 
@@ -71,23 +73,34 @@ function compressor(paths, squidge) {
 }
 
 async function compressHtml(htmlFile) {
-  return minify(htmlFile, {collapseWhitespace: true});
+  initialSize += fileSize(htmlFile);
+  const html = minify(htmlFile, {collapseWhitespace: true});
+  return html
 }
 
 async function compressCss(path) {
   const cssFile = await readFileAsync(path, constant.encoding);
-  return cssnano.process(cssFile, {}).then(e => e.css);
+  initialSize += fileSize(cssFile);
+  return cssnano.process(cssFile, {}).then(e => {
+    return e.css;
+  });
 }
 
 async function compressJs(path) {
   const jsFile = await readFileAsync(path, constant.encoding);
-  return uglifyJs.minify(jsFile).code;
+  initialSize += fileSize(jsFile);
+  return uglifyJs.minify(jsFile);
 }
 
 async function compressSvg(path) {
   const svgFile = await readFileAsync(path, constant.encoding);
+  initialSize += fileSize(svgFile);
   const svgo = new Svgo();
   return svgo.optimize(svgFile, {path: path}).then(e => e.data);
+}
+
+function fileSize(file) {
+  return Number((file.length / 1000).toFixed(2));
 }
 
 function injectCompressedFiles(html, compressedFiles, pathFiles) {
