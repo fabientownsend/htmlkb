@@ -6,13 +6,13 @@ const readFileAsync = promisify(fs.readFile);
 const {minify} = require('html-minifier');
 const cssnano = require('cssnano');
 const Svgo = require('svgo');
-const uglifyJs = require("uglify-js");
+const uglifyJs = require('uglify-js');
 
 const constant = {
   encoding: 'utf-8',
 };
 
-let initialSize = 0
+let initialSize = 0;
 
 async function main(source) {
   const html = await readFileAsync(source, constant.encoding);
@@ -28,22 +28,18 @@ async function main(source) {
     compressedSvg,
   ] = await compressFiles(html, cssPaths, jsPaths, svgPaths);
 
-  compressedHtml = injectCompressedFiles(compressedHtml, compressedJs, jsPaths);
-  compressedHtml = injectCompressedFiles(
-    compressedHtml,
-    compressedCss,
-    cssPaths,
-  );
-  compressedHtml = injectCompressedFiles(
-    compressedHtml,
-    compressedSvg,
-    svgPaths,
-  );
+  [
+    {compressedFile: compressedCss, path: cssPaths},
+    {compressedFile: compressedJs, path: jsPaths},
+    {compressedFile: compressedSvg, path: svgPaths},
+  ].forEach(({compressedFile, path}) => {
+    compressedHtml = injectCompressedFiles(compressedHtml, compressedFile, path);
+  });
 
   const splittedPath = source.split('/');
   const dest = splittedPath[splittedPath.length - 1];
   fs.writeFile(`dist/${dest}`, compressedHtml, () => {
-    console.log(`Compressed form ${initialSize}KB to ${fileSize(compressedHtml)}KB `)
+    console.log(`form ${initialSize}KB to ${fileSize(compressedHtml)}KB`);
   });
 }
 
@@ -75,15 +71,13 @@ function compressor(paths, squidge) {
 async function compressHtml(htmlFile) {
   initialSize += fileSize(htmlFile);
   const html = minify(htmlFile, {collapseWhitespace: true});
-  return html
+  return html;
 }
 
 async function compressCss(path) {
   const cssFile = await readFileAsync(path, constant.encoding);
   initialSize += fileSize(cssFile);
-  return cssnano.process(cssFile, {}).then(e => {
-    return e.css;
-  });
+  return cssnano.process(cssFile, {}).then(e => e.css);
 }
 
 async function compressJs(path) {
