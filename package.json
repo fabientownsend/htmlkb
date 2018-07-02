@@ -1,0 +1,34 @@
+{
+  "name": "htmlkb",
+  "version": "1.0.0",
+  "description": "_This is a pet project, I don't recommand to use it_",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src -d lib",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ],
+    "plugins": [
+      "transform-runtime"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabientownsend/htmlkb.git"
+  },
+  "author": "Fabien Townsend",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fabientownsend/htmlkb/issues"
+  },
+  "homepage": "https://github.com/fabientownsend/htmlkb#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0"
+  },
+  "dependencies": {}
+}
